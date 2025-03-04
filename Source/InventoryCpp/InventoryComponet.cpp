@@ -2,6 +2,7 @@
 
 
 #include "InventoryComponet.h"
+#include "InventoryCppCharacter.h"
 
 // Sets default values for this component's properties
 UInventoryComponet::UInventoryComponet()
@@ -46,7 +47,15 @@ bool UInventoryComponet::AddItem(FInventoryItemData NewItem)
 	CurrentWeight += ItemTotalWeight;
 
 	UE_LOG(LogTemp, Warning, TEXT("%s Added to the Inventory . Current Weight : %f/%f"), *NewItem.ItemName.ToString(),CurrentWeight,MaxWeight);
-
+	AActor* Owner = GetOwner();
+	if(Owner)
+	{
+		AInventoryCppCharacter* Player = Cast<AInventoryCppCharacter>(Owner);
+		if(Player)
+		{
+			Player->SetSpeed();
+		}
+	}
 	return true;
 }
 
@@ -72,6 +81,16 @@ bool UInventoryComponet::RemoveItem(FName ItemName, int32 Quantity)
 			}
 
 			UE_LOG(LogTemp, Warning, TEXT("%s Removed From the Inventory . Current Weight : %f/%f"), *ItemName.ToString(), CurrentWeight, MaxWeight);
+
+			AActor* Owner = GetOwner();
+			if (Owner)
+			{
+				AInventoryCppCharacter* Player = Cast<AInventoryCppCharacter>(Owner);
+				if (Player)
+				{
+					Player->SetSpeed();
+				}
+			}
 
 			return true;
 		}

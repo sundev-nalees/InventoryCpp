@@ -1,4 +1,4 @@
-// Copyright Epic Games, Inc. All Rights Reserved.
+
 
 #include "InventoryCppCharacter.h"
 #include "Engine/LocalPlayer.h"
@@ -18,20 +18,15 @@ DEFINE_LOG_CATEGORY(LogTemplateCharacter);
 
 AInventoryCppCharacter::AInventoryCppCharacter()
 {
-	// Set size for collision capsule
+	
 	GetCapsuleComponent()->InitCapsuleSize(42.f, 96.0f);
-		
-	// Don't rotate when the controller rotates. Let that just affect the camera.
+	
 	bUseControllerRotationPitch = false;
 	bUseControllerRotationYaw = false;
 	bUseControllerRotationRoll = false;
-
-	// Configure character movement
-	GetCharacterMovement()->bOrientRotationToMovement = true; // Character moves in the direction of input...	
-	GetCharacterMovement()->RotationRate = FRotator(0.0f, 500.0f, 0.0f); // ...at this rotation rate
-
-	// Note: For faster iteration times these variables, and many more, can be tweaked in the Character Blueprint
-	// instead of recompiling to adjust them
+	
+	GetCharacterMovement()->bOrientRotationToMovement = true; 
+	GetCharacterMovement()->RotationRate = FRotator(0.0f, 500.0f, 0.0f); 
 	GetCharacterMovement()->JumpZVelocity = 700.f;
 	GetCharacterMovement()->AirControl = 0.35f;
 	GetCharacterMovement()->MaxWalkSpeed = 500.f;
@@ -39,28 +34,26 @@ AInventoryCppCharacter::AInventoryCppCharacter()
 	GetCharacterMovement()->BrakingDecelerationWalking = 2000.f;
 	GetCharacterMovement()->BrakingDecelerationFalling = 1500.0f;
 
-	// Create a camera boom (pulls in towards the player if there is a collision)
 	CameraBoom = CreateDefaultSubobject<USpringArmComponent>(TEXT("CameraBoom"));
 	CameraBoom->SetupAttachment(RootComponent);
-	CameraBoom->TargetArmLength = 400.0f; // The camera follows at this distance behind the character	
-	CameraBoom->bUsePawnControlRotation = true; // Rotate the arm based on the controller
+	CameraBoom->TargetArmLength = 400.0f;
+	CameraBoom->bUsePawnControlRotation = true; 
 
-	// Create a follow camera
 	FollowCamera = CreateDefaultSubobject<UCameraComponent>(TEXT("FollowCamera"));
-	FollowCamera->SetupAttachment(CameraBoom, USpringArmComponent::SocketName); // Attach the camera to the end of the boom and let the boom adjust to match the controller orientation
-	FollowCamera->bUsePawnControlRotation = false; // Camera does not rotate relative to arm
+	FollowCamera->SetupAttachment(CameraBoom, USpringArmComponent::SocketName); 
+	FollowCamera->bUsePawnControlRotation = false;
 
-	// Note: The skeletal mesh and anim blueprint references on the Mesh component (inherited from Character) 
-	// are set in the derived blueprint asset named ThirdPersonCharacter (to avoid direct content references in C++)
+	//Added Inventory to the Player
 
 	InventoryComponent = CreateDefaultSubobject<UInventoryComponet>(TEXT("InventoryComponent"));
 }
 
 void AInventoryCppCharacter::BeginPlay()
 {
-	// Call the base class  
+	  
 	Super::BeginPlay();
 
+	//Dummy items Added 
 	if(InventoryComponent)
 	{
 		InventoryComponent->AddItem(FInventoryItemData("Sword", 10.0f, 1));
@@ -68,12 +61,26 @@ void AInventoryCppCharacter::BeginPlay()
 		InventoryComponent->AddItem(FInventoryItemData("Potion", 2.0f, 5));
 
 		InventoryComponent->DisplayInventory();
-
+		
 	}
 }
 
-//////////////////////////////////////////////////////////////////////////
-// Input
+//Check to reduce the speed depending on the inventory weight
+void AInventoryCppCharacter::SetSpeed()
+{
+	EWeightStage Stage = InventoryComponent->GetWeightStage();
+	switch (Stage) {
+	case EWeightStage::NORMAL:
+		GetCharacterMovement()->MaxWalkSpeed = 500.0f;
+		break;
+	case EWeightStage::HEAVY:
+		GetCharacterMovement()->MaxWalkSpeed = 300.0f;
+		break;
+	case EWeightStage::OVERBURDENED:
+		GetCharacterMovement()->MaxWalkSpeed = 100.0f;
+		break;
+	}
+}
 
 void AInventoryCppCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {

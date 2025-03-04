@@ -73,5 +73,9 @@ public:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Inventory")
 	UInventoryComponet* InventoryComponent;
+
+
+	UFUNCTION(BlueprintCallable, Category = "Inventory")
+	void SetSpeed();
 };
 
