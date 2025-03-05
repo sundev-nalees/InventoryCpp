@@ -35,6 +35,8 @@ struct FInventoryItemData
 
 };
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnWeightChanged);
+
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class INVENTORYCPP_API UInventoryComponet : public UActorComponent
 {
@@ -49,8 +51,7 @@ protected:
 	virtual void BeginPlay() override;
 
 public:	
-	// Called every frame
-	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
+	
 
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Inventory")
@@ -74,6 +75,8 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Inventory")
 	void DisplayInventory() const;
 
+	UPROPERTY(BlueprintAssignable, Category = "Events")
+	FOnWeightChanged OnWeightChanged;
 
 		
 };

@@ -26,12 +26,7 @@ void UInventoryComponet::BeginPlay()
 
 
 // Called every frame
-void UInventoryComponet::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
-{
-	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
-	// ...
-}
 
 bool UInventoryComponet::AddItem(FInventoryItemData NewItem)
 {
@@ -47,15 +42,8 @@ bool UInventoryComponet::AddItem(FInventoryItemData NewItem)
 	CurrentWeight += ItemTotalWeight;
 
 	UE_LOG(LogTemp, Warning, TEXT("%s Added to the Inventory . Current Weight : %f/%f"), *NewItem.ItemName.ToString(),CurrentWeight,MaxWeight);
-	AActor* Owner = GetOwner();
-	if(Owner)
-	{
-		AInventoryCppCharacter* Player = Cast<AInventoryCppCharacter>(Owner);
-		if(Player)
-		{
-			Player->SetSpeed();
-		}
-	}
+	
+	OnWeightChanged.Broadcast();
 	return true;
 }
 
@@ -82,15 +70,7 @@ bool UInventoryComponet::RemoveItem(FName ItemName, int32 Quantity)
 
 			UE_LOG(LogTemp, Warning, TEXT("%s Removed From the Inventory . Current Weight : %f/%f"), *ItemName.ToString(), CurrentWeight, MaxWeight);
 
-			AActor* Owner = GetOwner();
-			if (Owner)
-			{
-				AInventoryCppCharacter* Player = Cast<AInventoryCppCharacter>(Owner);
-				if (Player)
-				{
-					Player->SetSpeed();
-				}
-			}
+			OnWeightChanged.Broadcast();
 
 			return true;
 		}

@@ -56,12 +56,15 @@ void AInventoryCppCharacter::BeginPlay()
 	//Dummy items Added 
 	if(InventoryComponent)
 	{
+		
+		InventoryComponent->OnWeightChanged.AddDynamic(this, &AInventoryCppCharacter::SetSpeed);
 		InventoryComponent->AddItem(FInventoryItemData("Sword", 10.0f, 1));
 		InventoryComponent->AddItem(FInventoryItemData("Sheild", 15.0f, 1));
 		InventoryComponent->AddItem(FInventoryItemData("Potion", 2.0f, 5));
 
 		InventoryComponent->DisplayInventory();
 		
+
 	}
 }
 
